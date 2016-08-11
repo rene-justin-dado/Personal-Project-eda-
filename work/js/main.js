@@ -85,6 +85,7 @@ function call() {
   if (audioTracks.length > 0) {
     trace('Using audio device: ' + audioTracks[0].label);
   }
+  // What should servers be?
   var servers = null;
   // Add pc1 to global scope so it's accessible from the browser console
   window.pc1 = pc1 = new RTCPeerConnection(servers);
@@ -92,20 +93,9 @@ function call() {
   pc1.onicecandidate = function(e) {
     onIceCandidate(pc1, e);
   };
-  // Add pc2 to global scope so it's accessible from the browser console
-  window.pc2 = pc2 = new RTCPeerConnection(servers);
-  trace('Created remote peer connection object pc2');
-  pc2.onicecandidate = function(e) {
-    onIceCandidate(pc2, e);
-  };
   pc1.oniceconnectionstatechange = function(e) {
     onIceStateChange(pc1, e);
   };
-  pc2.oniceconnectionstatechange = function(e) {
-    onIceStateChange(pc2, e);
-  };
-  pc2.onaddstream = gotRemoteStream;
-
   pc1.addStream(localStream);
   trace('Added local stream to pc1');
 
@@ -116,6 +106,17 @@ function call() {
     onCreateOfferSuccess,
     onCreateSessionDescriptionError
   );
+
+  // Add pc2 to global scope so it's accessible from the browser console
+  window.pc2 = pc2 = new RTCPeerConnection(servers);
+  trace('Created remote peer connection object pc2');
+  pc2.onicecandidate = function(e) {
+    onIceCandidate(pc2, e);
+  };
+  pc2.oniceconnectionstatechange = function(e) {
+    onIceStateChange(pc2, e);
+  };
+  pc2.onaddstream = gotRemoteStream;
 }
 
 function onCreateSessionDescriptionError(error) {
