@@ -1,14 +1,21 @@
-var express = require('express')
-var hbs = require('express-handlebars')
-var path = require('path')
+const express = require('express')
+const hbs = require('express-handlebars')
+const path = require('path')
 
-var index = require('../js/main.js')
-var PORT = 3000
+const index = require('../js/index.js')
+const PORT = process.env.port || 3000
 
-var app = express()
+const app = express()
+const server = require('http').createServer(app)
+const io = require('socket.io')(server)
+
 app.engine('hbs', hbs())
 app.set('view engine', 'hbs')
 app.set('views', path.join(__dirname, 'views'))
+
+io.on('connection', function(socket){
+  console.log('a user connected');
+})
 
 app.listen(PORT, () => {
   console.log('Listening on...'), PORT
