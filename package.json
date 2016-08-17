@@ -19,12 +19,12 @@
   "dependencies": {
     "express": "^4.14.0",
     "express-handlebars": "^3.0.0",
+    "node-static": "^0.7.8",
     "socket.io": "^1.4.8"
   },
   "devDependencies": {
     "node-debugger": "^1.0.0",
     "node-inspector": "^0.12.8",
-    "node-static": "^0.7.8",
     "nodemon": "^1.10.0"
   },
   "engines": {
