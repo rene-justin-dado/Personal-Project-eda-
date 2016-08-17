@@ -2,9 +2,9 @@
   "name": "webrtc-testing",
   "version": "0.1.0",
   "description": "learning code based on google's codelab",
-  "main": "./server/server.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node-inspector --web-port=8888 & nodemon --debug ./server/server.js"
+    "nodemon": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -23,7 +23,8 @@
   },
   "devDependencies": {
     "node-debugger": "^1.0.0",
-    "nodemon": "^1.10.0",
-    "node-inspector": "^0.12.8"
+    "node-inspector": "^0.12.8",
+    "node-static": "^0.7.8",
+    "nodemon": "^1.10.0"
   }
 }
