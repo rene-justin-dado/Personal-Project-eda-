@@ -13,6 +13,10 @@ app.engine('hbs', hbs())
 app.set('view engine', 'hbs')
 app.set('views', path.join(__dirname, 'views'))
 
+app.get('/', (req, res) => {
+  sendFile('../index.html')
+})
+
 io.on('connection', function(socket){
   console.log('a user connected');
 })
