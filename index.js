@@ -10,6 +10,7 @@ const app = http.createServer(function(req, res) {
 }).listen(PORT)
 
 const io = socketIO.listen(app)
+
 io.sockets.on('connection', function(socket) {
 
   // convenience function to log server messages on the client
@@ -19,12 +20,14 @@ io.sockets.on('connection', function(socket) {
     socket.emit('log', array)
   }
 
+  // Upon sending message (no message functionality yet)
   socket.on('message', function(message) {
     log('Client said: ', message)
     // for a real app, would be room-only (not broadcast)
     socket.broadcast.emit('message', message)
   })
 
+  // Actions upon user Join and Leave
   socket.on('create or join', function(room) {
     log('Received request to create or join room ' + room)
 
@@ -36,7 +39,7 @@ io.sockets.on('connection', function(socket) {
       log('Client ID ' + socket.id + ' created room ' + room)
       socket.emit('created', room, socket.id)
 
-    } else if (numClients <= 8) {
+    } else if (numClients > 1 && numClients <= 8) {
       log('Client ID ' + socket.id + ' joined room ' + room)
       io.sockets.in(room).emit('join', room)
       socket.join(room)
@@ -47,6 +50,7 @@ io.sockets.on('connection', function(socket) {
     }
   })
 
+  //
   socket.on('ipaddr', function() {
     let ifaces = os.networkInterfaces()
     for (var dev in ifaces) {

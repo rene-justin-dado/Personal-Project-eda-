@@ -6,6 +6,7 @@ let pc
 let remoteStream
 let turnReady
 
+// Declare stun/turn servers to use
 const pcConfig = {
   'iceServers': [
     {
@@ -39,7 +40,7 @@ var sdpConstraints = {
 
 /////////////////////////////////////////////
 
-var room = 'foo'
+var room = prompt ('Name your room')
 // Could prompt for room name:
 // room = prompt('Enter room name:')
 
@@ -107,11 +108,11 @@ socket.on('message', function(message) {
 
 ////////////////////////////////////////////////////
 
-var localVideo = document.querySelector('#localVideo')
-var remoteVideo = document.querySelector('#remoteVideo')
+let localVideo = document.querySelector('#localVideo')
+let remoteVideo = document.querySelector('#remoteVideo')
 
 navigator.mediaDevices.getUserMedia({
-  audio: false,
+  audio: true,
   video: true
 })
 .then(gotStream)
@@ -129,8 +130,9 @@ function gotStream(stream) {
   }
 }
 
-var constraints = {
-  video: true
+const constraints = {
+  video: true,
+  audio: true
 }
 
 console.log('Getting user media with constraints', constraints)
@@ -163,13 +165,13 @@ window.onbeforeunload = function() {
 
 function createPeerConnection() {
   try {
-    pc = new RTCPeerConnection(null)
+    pc = new RTCPeerConnection(pcConfig)
     pc.onicecandidate = handleIceCandidate
     pc.onaddstream = handleRemoteStreamAdded
     pc.onremovestream = handleRemoteStreamRemoved
     console.log('Created RTCPeerConnnection')
-  } catch (e) {
-    console.log('Failed to create PeerConnection, exception: ' + e.message)
+  } catch (err) {
+    console.log('Failed to create PeerConnection, exception: ' + err.message)
     alert('Cannot create RTCPeerConnection object.')
     return
   }
@@ -187,12 +189,6 @@ function handleIceCandidate(event) {
   } else {
     console.log('End of candidates.')
   }
-}
-
-function handleRemoteStreamAdded(event) {
-  console.log('Remote stream added.')
-  remoteVideo.src = window.URL.createObjectURL(event.stream)
-  remoteStream = event.stream
 }
 
 function handleCreateOfferError(event) {
