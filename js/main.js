@@ -40,11 +40,11 @@ var sdpConstraints = {
 
 /////////////////////////////////////////////
 
-var room = prompt ('Name your room')
+const room = prompt ('Name your room')
 // Could prompt for room name:
 // room = prompt('Enter room name:')
 
-var socket = io.connect()
+const socket = io.connect()
 
 if (room !== '') {
   socket.emit('create or join', room)
@@ -57,6 +57,7 @@ socket.on('created', function(room) {
 })
 
 socket.on('full', function(room) {
+  socket.emit('Room ' + room + ' is full')
   console.log('Room ' + room + ' is full')
 })
 
@@ -112,7 +113,7 @@ let localVideo = document.querySelector('#localVideo')
 let remoteVideo = document.querySelector('#remoteVideo')
 
 navigator.mediaDevices.getUserMedia({
-  audio: true,
+  audio: false,
   video: true
 })
 .then(gotStream)
@@ -132,10 +133,11 @@ function gotStream(stream) {
 
 const constraints = {
   video: true,
-  audio: true
+  audio: false
 }
 
 console.log('Getting user media with constraints', constraints)
+
 
 if (location.hostname !== 'localhost') {
   requestTurn(
