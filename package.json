@@ -26,5 +26,8 @@
     "node-inspector": "^0.12.8",
     "node-static": "^0.7.8",
     "nodemon": "^1.10.0"
+  },
+  "engines": {
+    "node": "6.3.1"
   }
 }
