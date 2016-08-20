@@ -11,8 +11,8 @@ const callButton = document.getElementById('callButton')
 const hangupButton = document.getElementById('hangupButton')
 callButton.disabled = true
 hangupButton.disabled = true
-startButton.onclick = start()
-callButton.onclick = call()
+startButton.addEventListener('click', start)
+callButton.addEventListener('click', call)
 // hangupButton.onclick = hangup
 const localVideo = document.getElementById('localVideo')
 const remoteVideo = document.getElementById('remoteVideo')
@@ -73,6 +73,19 @@ function getOtherPc(pc) {
   return (pc === localPC) ? remotePC : localPC
 }
 
+function gotStream (stream) {
+  // Add localStream to global scope so it's accessible from the browser console
+  window.localStream = localStream = stream
+  console.log('Received local stream (this is the result of the success callback of getUserMedia)')
+
+  callButton.disabled = false
+  if (window.URL) {
+    localVideo.src = window.URL.createObjectURL(stream)
+    localVideo.srcObject = stream
+  } else {
+    localVideo.src = stream
+  }
+}
 
 function start () {
   startButton.disabled=true
@@ -82,19 +95,6 @@ function start () {
   })
   .then(gotStream)
   .catch(err => console.error(err.name))
-}
-
-function gotStream (stream) {
-  if (window.URL) {
-    localVideo.src = window.URL.createObjectURL(stream)
-    localVideo.srcObject = stream
-  } else {
-    localVideo.src = stream
-  }
-  console.log('Received local stream (this is the result of the success callback of getUserMedia)')
-  // Add localStream to global scope so it's accessible from the browser console
-  window.localStream = localStream = stream
-  callButton.disabled = false
 }
 
 function call() {
