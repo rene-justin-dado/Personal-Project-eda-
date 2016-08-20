@@ -123,7 +123,7 @@ function call() {
 
   localPC.oniceconnectionstatechange = e => { onIceStateChange(localPC, e) }
   remotePC.oniceconnectionstatechange = e => { onIceStateChange(remotePC, e) }
-  remotePC.onaddstream = () => {
+  remotePC.onaddstream = evt => {
     window.remoteStream = remoteVideo.srcObject = evt.stream
     console.log('pc2 received remote stream')
   }
@@ -140,74 +140,66 @@ function call() {
   )
 }
 ////////////////////////////////////////////////////////////////////////////////////////
-function onCreateSessionDescriptionError(error) {
-  trace('Failed to create session description: ' + error.toString())
+function onCreateSessionDescriptionError(err) {
+  console.log(`Failed to create session description: ${err.toString()}`)
 }
 
 function onCreateOfferSuccess(desc) {
-  trace('Offer from localPC\n' + desc.sdp)
-  trace('localPC setLocalDescription start')
-  localPC.setLocalDescription(desc).then(
-    function() {
-      onSetLocalSuccess(localPC);
-    },
-    onSetSessionDescriptionError
-  );
-  trace('remotePC setRemoteDescription start');
-  remotePC.setRemoteDescription(desc).then(
-    function() {
-      onSetRemoteSuccess(remotePC);
-    },
-    onSetSessionDescriptionError
-  );
-  trace('remotePC createAnswer start');
+  console.log(`Offer from localPC\n ${desc.sdp}`)
+  console.log('localPC setLocalDescription start')
+  localPC.setLocalDescription(desc)
+         .then(onSetLocalSuccess(localPC))
+         .catch(onSetSessionDescriptionError)
+
+  console.log('remotePC setRemoteDescription start')
+  remotePC.setRemoteDescription(desc)
+          .then(onSetRemoteSuccess(remotePC))
+          .catch(onSetSessionDescriptionError)
+  console.log('remotePC createAnswer start')
+
   // Since the 'remote' side has no media stream we need
   // to pass in the right constraints in order for it to
   // accept the incoming offer of audio and video.
-  remotePC.createAnswer().then(
-    onCreateAnswerSuccess,
-    onCreateSessionDescriptionError
-  );
+  remotePC.createAnswer()
+          .then(onCreateAnswerSuccess)
+          .catch(onCreateSessionDescriptionError)
 }
 
 function onSetLocalSuccess(pc) {
-  trace(getName(pc) + ' setLocalDescription complete');
+  console.log(`${getName(pc)} setLocalDescription complete`)
+}
+
+function onSetSessionDescriptionError(err) {
+  console.log(`Failed to set session description:  ${err.toString()}`)
+}
+function onSetRemoteSuccess(pc) {
+  console.log(`${getName(pc)} setRemoteDescription complete`)
+}
+
+function onCreateAnswerSuccess(desc) {
+  console.log(`Answer from remotePC:\n ${desc.sdp}`)
+  console.log('remotePC setLocalDescription start')
+  remotePC.setLocalDescription(desc)
+          .then(onSetLocalSuccess(remotePC))
+          .catch(onSetSessionDescriptionError)
+
+  console.log('localPC setRemoteDescription start')
+  localPC.setRemoteDescription(desc)
+         .then(onSetRemoteSuccess(localPC))
+         .catch(onSetSessionDescriptionError)
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 
 
 
-// function onSetRemoteSuccess(pc) {
-//   trace(getName(pc) + ' setRemoteDescription complete');
-// }
-//
-// function onSetSessionDescriptionError(error) {
-//   trace('Failed to set session description: ' + error.toString());
-// }
-//
+
+
 // function gotRemoteStream(e) {
 //   // Add remoteStream to global scope so it's accessible from the browser console
 //   window.remoteStream = remoteVideo.srcObject = e.stream;
 //   trace('remotePC received remote stream');
 // }
 //
-// function onCreateAnswerSuccess(desc) {
-//   trace('Answer from remotePC:\n' + desc.sdp);
-//   trace('remotePC setLocalDescription start');
-//   remotePC.setLocalDescription(desc).then(
-//     function() {
-//       onSetLocalSuccess(remotePC);
-//     },
-//     onSetSessionDescriptionError
-//   );
-//   trace('localPC setRemoteDescription start');
-//   localPC.setRemoteDescription(desc).then(
-//     function() {
-//       onSetRemoteSuccess(localPC);
-//     },
-//     onSetSessionDescriptionError
-//   );
-// }
 //
 // /////////////////////////////////////////////
 //
