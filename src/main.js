@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 navigator.getUserMedia = navigator.getUserMedia ||
     navigator.webkitGetUserMedia || navigator.mozGetUserMedia
@@ -113,33 +113,44 @@ function call() {
 
   // Add localPC to global scope so it's accessible from the browser console
   window.localPC = localPC = new RTCPeerConnection(servers)
-  console.log('Created local peer connection object localPC (available in global scope)')
-  localPC.onicecandidate = (err) => { onIceCandidate(localPC, err) }
+  console.log('Created local peer connection object for localPC (available in global scope)')
+  localPC.onicecandidate = evt => { onIceCandidate(localPC, evt) }
 
   // Add remotePC to global scope so it's accessible from the browser console
   window.remotePC = remotePC = new RTCPeerConnection(servers)
-  console.log('Created remote peer connection object remotePC (available in global scope)')
-  remotePC.onicecandidate = (err) => { onIceCandidate(remotePC, err) }
+  console.log('Created remote peer connection object for remotePC (available in global scope)')
+  remotePC.onicecandidate = evt => { onIceCandidate(remotePC, evt) }
 
-  localPC.oniceconnectionstatechange = e => { onIceStateChange(localPC, e) }
-  remotePC.oniceconnectionstatechange = e => { onIceStateChange(remotePC, e) }
-  remotePC.onaddstream = evt => {
-    window.remoteStream = remoteVideo.srcObject = evt.stream
-    console.log('pc2 received remote stream')
-  }
+  localPC.oniceconnectionstatechange = evt => { onIceStateChange(localPC, evt) }
+  remotePC.oniceconnectionstatechange = evt => { onIceStateChange(remotePC, evt) }
+  remotePC.onaddstream = gotRemoteStream
 
  localPC.addStream(localStream)
  console.log('Added local stream to localPC')
-
   console.log('localPC createOffer start')
-  localPC.createOffer(
-    offerOptions
-  ).then(
+  localPC.createOffer(offerOptions)
+  .then(
     onCreateOfferSuccess,
     onCreateSessionDescriptionError
   )
 }
-////////////////////////////////////////////////////////////////////////////////////////
+
+function onIceCandidate (pc, evt) {
+  if (evt.candidate) {
+    getOtherPc(pc).addIceCandidate(new RTCIceCandidate(evt.candidate))
+    .then(() => onAddIceCandidateSuccess)
+    .catch(err => onAddIceCandidateError(pc, err))
+  }
+}
+
+function onAddIceCandidateSuccess(pc) {
+  console.log(`${getName(pc)} addIceCandidate success`)
+}
+
+function onAddIceCandidateError(pc, error) {
+  console.log(`${getName(pc)} failed to add ICE Candidate: ${error.toString()}`)
+}
+
 function onCreateSessionDescriptionError(err) {
   console.log(`Failed to create session description: ${err.toString()}`)
 }
@@ -177,7 +188,7 @@ function onSetRemoteSuccess(pc) {
 }
 
 function onCreateAnswerSuccess(desc) {
-  console.log(`Answer from remotePC:\n ${desc.sdp}`)
+  console.log(`Answer from remotePC:\n`) //${desc.sdp}
   console.log('remotePC setLocalDescription start')
   remotePC.setLocalDescription(desc)
           .then(onSetLocalSuccess(remotePC))
@@ -194,38 +205,30 @@ function onCreateAnswerSuccess(desc) {
 
 
 
-// function gotRemoteStream(e) {
-//   // Add remoteStream to global scope so it's accessible from the browser console
-//   window.remoteStream = remoteVideo.srcObject = e.stream;
-//   trace('remotePC received remote stream');
-// }
-//
-//
+function gotRemoteStream(e) {
+  // Add remoteStream to global scope so it's accessible from the browser console
+  window.remoteStream = remoteVideo.srcObject = e.stream
+  console.log('remotePC received remote stream')
+}
+
 // /////////////////////////////////////////////
 //
-// function onAddIceCandidateSuccess(pc) {
-//   trace(getName(pc) + ' addIceCandidate success');
-// }
 //
-// function onAddIceCandidateError(pc, error) {
-//   trace(getName(pc) + ' failed to add ICE Candidate: ' + error.toString());
-// }
-//
-// function onIceStateChange(pc, event) {
-//   if (pc) {
-//     trace(getName(pc) + ' ICE state: ' + pc.iceConnectionState);
-//     console.log('ICE state change event: ', event);
-//   }
-// }
+function onIceStateChange(pc, evt) {
+  if (pc) {
+    console.log(`${getName(pc)} ICE state: ${pc.iceConnectionState}`)
+    console.log('ICE state change event: ', evt)
+  }
+}
 // /////////////////////////////////////////////
 //
 //
 // function hangup() {
-//   trace('Ending call');
-//   localPC.close();
-//   remotePC.close();
-//   localPC = null;
-//   remotePC = null;
-//   hangupButton.disabled = true;
-//   callButton.disabled = false;
+//   console.log('Ending call')
+//   localPC.close()
+//   remotePC.close()
+//   localPC = null
+//   remotePC = null
+//   hangupButton.disabled = true
+//   callButton.disabled = false
 // }
