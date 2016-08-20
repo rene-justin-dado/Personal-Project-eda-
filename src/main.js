@@ -6,7 +6,7 @@ navigator.getUserMedia = navigator.getUserMedia ||
 // import {} from './handleIceCandidates'
 
 // DOM interactions
-const startbutton = document.getElementById('startbutton')
+const startButton = document.getElementById('startButton')
 const callButton = document.getElementById('callButton')
 const hangupButton = document.getElementById('hangupButton')
 callButton.disabled = true
@@ -14,6 +14,7 @@ hangupButton.disabled = true
 startButton.addEventListener('click', start)
 callButton.addEventListener('click', call)
 // hangupButton.onclick = hangup
+
 const localVideo = document.getElementById('localVideo')
 const remoteVideo = document.getElementById('remoteVideo')
 
@@ -127,7 +128,7 @@ function call() {
     console.log('pc2 received remote stream')
   }
 
- localPC.addTrack(localStream)
+ localPC.addStream(localStream)
  console.log('Added local stream to localPC')
 
   console.log('localPC createOffer start')
