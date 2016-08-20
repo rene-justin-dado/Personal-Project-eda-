@@ -12,7 +12,7 @@ const hangupButton = document.getElementById('hangupButton')
 callButton.disabled = true
 hangupButton.disabled = true
 startButton.onclick = start()
-callButton.onclick = call
+callButton.onclick = call()
 // hangupButton.onclick = hangup
 const localVideo = document.getElementById('localVideo')
 const remoteVideo = document.getElementById('remoteVideo')
@@ -72,20 +72,12 @@ function getName(pc) {
 function getOtherPc(pc) {
   return (pc === localPC) ? remotePC : localPC
 }
-// Add localPC to global scope so it's accessible from the browser console
-window.localPC = localPC = new RTCPeerConnection(servers)
-console.log('Created local peer connection object localPC (available in global scope)')
-localPC.onicecandidate = (err) => { onIceCandidate(localPC, err) }
-
-// Add remotePC to global scope so it's accessible from the browser console
-window.remotePC = remotePC = new RTCPeerConnection(servers)
-console.log('Created remote peer connection object remotePC (available in global scope)')
-remotePC.onicecandidate = (err) => { onIceCandidate(remotePC, err) }
 
 
 function start () {
+  startButton.disabled=true
   navigator.mediaDevices.getUserMedia({
-    audio:false,
+    audio:true,
     video: true
   })
   .then(gotStream)
@@ -105,19 +97,12 @@ function gotStream (stream) {
   callButton.disabled = false
 }
 
-function gotRemoteStream(evt) {
-  // Add remoteStream to global scope so it's accessible from the browser console
-  window.remoteStream = remoteVideo.srcObject = evt.stream;
-  console.log('pc2 received remote stream');
-}
-
 function call() {
   callButton.disabled = true
   hangupButton.disabled = false
   console.log('Starting call')
-  startTime = window.performance.now()
-  var videoTracks = localStream.getVideoTracks()
-  var audioTracks = localStream.getAudioTracks()
+  const videoTracks = localStream.getVideoTracks()
+  const audioTracks = localStream.getAudioTracks()
   if (videoTracks.length > 0) {
     console.log('Using video device: ' + videoTracks[0].label)
   }
@@ -125,14 +110,22 @@ function call() {
     console.log('Using audio device: ' + audioTracks[0].label)
   }
 
-  /////////////////////////////////////////////
-  localPC.oniceconnectionstatechange = function(e) {
-    onIceStateChange(localPC, e)
+  // Add localPC to global scope so it's accessible from the browser console
+  window.localPC = localPC = new RTCPeerConnection(servers)
+  console.log('Created local peer connection object localPC (available in global scope)')
+  localPC.onicecandidate = (err) => { onIceCandidate(localPC, err) }
+
+  // Add remotePC to global scope so it's accessible from the browser console
+  window.remotePC = remotePC = new RTCPeerConnection(servers)
+  console.log('Created remote peer connection object remotePC (available in global scope)')
+  remotePC.onicecandidate = (err) => { onIceCandidate(remotePC, err) }
+
+  localPC.oniceconnectionstatechange = e => { onIceStateChange(localPC, e) }
+  remotePC.oniceconnectionstatechange = e => { onIceStateChange(remotePC, e) }
+  remotePC.onaddstream = () => {
+    window.remoteStream = remoteVideo.srcObject = evt.stream
+    console.log('pc2 received remote stream')
   }
-  remotePC.oniceconnectionstatechange = function(e) {
-    onIceStateChange(remotePC, e)
-  }
-  remotePC.onaddstream = gotRemoteStream
 
  localPC.addTrack(localStream)
  console.log('Added local stream to localPC')
