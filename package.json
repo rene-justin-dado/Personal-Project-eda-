@@ -4,7 +4,8 @@
   "description": "My Personal Project",
   "main": "server.js",
   "dependencies": {
-    "express": "^4.14.0"
+    "express": "^4.14.0",
+    "webrtc-adapter": "^2.0.2"
   },
   "devDependencies": {
     "babel-core": "^6.13.2",

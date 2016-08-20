@@ -3,27 +3,38 @@
 navigator.getUserMedia = navigator.getUserMedia ||
     navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
-var constraints = {
-  audio: false,
-  video: true
-};
+const startbutton = document.getElementById('startbutton');
+const callButton = document.getElementById('callButton');
+const hangupButton = document.getElementById('hangupButton');
+callButton.disabled = true;
+hangupButton.disabled = true;
+startButton.onclick = start();
+// callButton.onclick = call;
+// hangupButton.onclick = hangup;
 
-var video = document.querySelector('video');
+const localVideo = document.getElementById('localVideo');
 
-function successCallback(stream) {
-  window.stream = stream; // stream available to console
+function start () {
+  navigator.mediaDevices.getUserMedia({
+    audio:false,
+    video: true
+  })
+  .then(gotStream)
+  .catch(err => console.error(err.name))
+}
+function gotStream(stream) {
+  console.log('Received local stream')
   if (window.URL) {
-    video.src = window.URL.createObjectURL(stream);
+    localVideo.src = window.URL.createObjectURL(stream)
+    localVideo.srcObject = stream
   } else {
-    video.src = stream;
+    localVideo.src = stream
   }
+  // Add localStream to global scope so it's accessible from the browser console
+  window.localStream = localStream = stream
+  callButton.disabled = false
 }
 
-function errorCallback(error) {
-  console.log('navigator.getUserMedia error: ', error);
-}
-
-navigator.getUserMedia(constraints, successCallback, errorCallback);
 // 'use strict';
 //
 // var startButton = document.getElementById('startButton');
