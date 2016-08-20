@@ -114,25 +114,32 @@ function call() {
   // Add localPC to global scope so it's accessible from the browser console
   window.localPC = localPC = new RTCPeerConnection(servers)
   console.log('Created local peer connection object for localPC (available in global scope)')
-  localPC.onicecandidate = evt => { onIceCandidate(localPC, evt) }
+  localPC.onicecandidate = evt => {
+    onIceCandidate(localPC, evt)
+  }
 
   // Add remotePC to global scope so it's accessible from the browser console
   window.remotePC = remotePC = new RTCPeerConnection(servers)
   console.log('Created remote peer connection object for remotePC (available in global scope)')
-  remotePC.onicecandidate = evt => { onIceCandidate(remotePC, evt) }
+  remotePC.onicecandidate = evt => {
+    onIceCandidate(remotePC, evt)
+  }
 
-  localPC.oniceconnectionstatechange = evt => { onIceStateChange(localPC, evt) }
-  remotePC.oniceconnectionstatechange = evt => { onIceStateChange(remotePC, evt) }
+  localPC.oniceconnectionstatechange = evt => {
+    onIceStateChange(localPC, evt)
+  }
+  remotePC.oniceconnectionstatechange = evt => {
+    onIceStateChange(remotePC, evt)
+  }
   remotePC.onaddstream = gotRemoteStream
 
- localPC.addStream(localStream)
- console.log('Added local stream to localPC')
+  localPC.addStream(localStream)
+  console.log('Added local stream to localPC\n')
+
   console.log('localPC createOffer start')
   localPC.createOffer(offerOptions)
-  .then(
-    onCreateOfferSuccess,
-    onCreateSessionDescriptionError
-  )
+         .then(onCreateOfferSuccess)
+         .catch(onCreateSessionDescriptionError)
 }
 
 function onIceCandidate (pc, evt) {
@@ -199,11 +206,6 @@ function onCreateAnswerSuccess(desc) {
          .then(onSetRemoteSuccess(localPC))
          .catch(onSetSessionDescriptionError)
 }
-////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
 
 function gotRemoteStream(e) {
   // Add remoteStream to global scope so it's accessible from the browser console
@@ -211,24 +213,19 @@ function gotRemoteStream(e) {
   console.log('remotePC received remote stream')
 }
 
-// /////////////////////////////////////////////
-//
-//
 function onIceStateChange(pc, evt) {
   if (pc) {
     console.log(`${getName(pc)} ICE state: ${pc.iceConnectionState}`)
     console.log('ICE state change event: ', evt)
   }
 }
-// /////////////////////////////////////////////
-//
-//
-// function hangup() {
-//   console.log('Ending call')
-//   localPC.close()
-//   remotePC.close()
-//   localPC = null
-//   remotePC = null
-//   hangupButton.disabled = true
-//   callButton.disabled = false
-// }
+
+function hangup() {
+  console.log('Ending call')
+  localPC.close()
+  remotePC.close()
+  localPC = null
+  remotePC = null
+  hangupButton.disabled = true
+  callButton.disabled = false
+}
