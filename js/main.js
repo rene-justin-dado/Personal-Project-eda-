@@ -9,36 +9,13 @@ startButton.onclick = start;
 callButton.onclick = call;
 hangupButton.onclick = hangup;
 
-var startTime;
 var localVideo = document.getElementById('localVideo');
 var remoteVideo = document.getElementById('remoteVideo');
 
-localVideo.addEventListener('loadedmetadata', function() {
-  trace('Local video videoWidth: ' + this.videoWidth +
-    'px,  videoHeight: ' + this.videoHeight + 'px');
-});
-
-remoteVideo.addEventListener('loadedmetadata', function() {
-  trace('Remote video videoWidth: ' + this.videoWidth +
-    'px,  videoHeight: ' + this.videoHeight + 'px');
-});
-
-remoteVideo.onresize = function() {
-  trace('Remote video size changed to ' +
-    remoteVideo.videoWidth + 'x' + remoteVideo.videoHeight);
-  // We'll use the first onresize callback as an indication that video has started
-  // playing out.
-  if (startTime) {
-    var elapsedTime = window.performance.now() - startTime;
-    trace('Setup time: ' + elapsedTime.toFixed(3) + 'ms');
-    startTime = null;
-  }
-};
-
-var localStream;
-var pc1;
-var pc2;
-var offerOptions = {
+let localStream;
+let pc1;
+let pc2;
+const offerOptions = {
   offerToReceiveAudio: 1,
   offerToReceiveVideo: 1
 };
@@ -72,17 +49,20 @@ function start() {
   });
 }
 
-function call () {
-  callButton.disabled = true
-  hangupButton.disabled = false
-  startTime = window.performance.now()
-  let videoTracks = localStream.getVideoTracks()
-  let audioTracks = localStream.getAudioTracks()
+function call() {
+  callButton.disabled = true;
+  hangupButton.disabled = false;
+  trace('Starting call');
+  startTime = window.performance.now();
+  var videoTracks = localStream.getVideoTracks();
+  var audioTracks = localStream.getAudioTracks();
   if (videoTracks.length > 0) {
-    console.log(`Video device is: ${videoTracks[0].label}`)
-    console.log(`Audio device is: ${audioTracks[0].label}`)
+    trace('Using video device: ' + videoTracks[0].label);
   }
-}
+  if (audioTracks.length > 0) {
+    trace('Using audio device: ' + audioTracks[0].label);
+  }
+
   /////////////////////////////////////////////
   var servers = null;
   // Add pc1 to global scope so it's accessible from the browser console
