@@ -12,7 +12,8 @@ startButton.onclick = start();
 // callButton.onclick = call;
 // hangupButton.onclick = hangup;
 
-const localVideo = document.getElementById('localVideo');
+const localVideo = document.getElementById('localVideo')
+const remoteVideo = document.getElementById('remoteVideo')
 
 function start () {
   navigator.mediaDevices.getUserMedia({
@@ -35,17 +36,6 @@ function gotStream(stream) {
   callButton.disabled = false
 }
 
-// 'use strict';
-//
-// var startButton = document.getElementById('startButton');
-// var callButton = document.getElementById('callButton');
-// var hangupButton = document.getElementById('hangupButton');
-// callButton.disabled = true;
-// hangupButton.disabled = true;
-// startButton.onclick = start;
-// callButton.onclick = call;
-// hangupButton.onclick = hangup;
-//
 // var localVideo = document.getElementById('localVideo');
 // var remoteVideo = document.getElementById('remoteVideo');
 //
@@ -71,19 +61,6 @@ function gotStream(stream) {
 //   // Add localStream to global scope so it's accessible from the browser console
 //   window.localStream = localStream = stream;
 //   callButton.disabled = false;
-// }
-//
-// function start() {
-//   trace('Requesting local stream');
-//   startButton.disabled = true;
-//   navigator.mediaDevices.getUserMedia({
-//     audio: false,
-//     video: true
-//   })
-//   .then(gotStream)
-//   .catch(function(e) {
-//     alert('getUserMedia() error: ' + e.name);
-//   });
 // }
 //
 // function call() {
