@@ -139,44 +139,44 @@ function call() {
     onCreateSessionDescriptionError
   )
 }
+////////////////////////////////////////////////////////////////////////////////////////
+function onCreateSessionDescriptionError(error) {
+  trace('Failed to create session description: ' + error.toString())
+}
 
-//
-//
-//
-// function onCreateSessionDescriptionError(error) {
-//   trace('Failed to create session description: ' + error.toString())
-// }
-//
-// function onCreateOfferSuccess(desc) {
-//   trace('Offer from localPC\n' + desc.sdp)
-//   trace('localPC setLocalDescription start')
-//   localPC.setLocalDescription(desc).then(
-//     function() {
-//       onSetLocalSuccess(localPC);
-//     },
-//     onSetSessionDescriptionError
-//   );
-//   trace('remotePC setRemoteDescription start');
-//   remotePC.setRemoteDescription(desc).then(
-//     function() {
-//       onSetRemoteSuccess(remotePC);
-//     },
-//     onSetSessionDescriptionError
-//   );
-//   trace('remotePC createAnswer start');
-//   // Since the 'remote' side has no media stream we need
-//   // to pass in the right constraints in order for it to
-//   // accept the incoming offer of audio and video.
-//   remotePC.createAnswer().then(
-//     onCreateAnswerSuccess,
-//     onCreateSessionDescriptionError
-//   );
-// }
-//
-// function onSetLocalSuccess(pc) {
-//   trace(getName(pc) + ' setLocalDescription complete');
-// }
-//
+function onCreateOfferSuccess(desc) {
+  trace('Offer from localPC\n' + desc.sdp)
+  trace('localPC setLocalDescription start')
+  localPC.setLocalDescription(desc).then(
+    function() {
+      onSetLocalSuccess(localPC);
+    },
+    onSetSessionDescriptionError
+  );
+  trace('remotePC setRemoteDescription start');
+  remotePC.setRemoteDescription(desc).then(
+    function() {
+      onSetRemoteSuccess(remotePC);
+    },
+    onSetSessionDescriptionError
+  );
+  trace('remotePC createAnswer start');
+  // Since the 'remote' side has no media stream we need
+  // to pass in the right constraints in order for it to
+  // accept the incoming offer of audio and video.
+  remotePC.createAnswer().then(
+    onCreateAnswerSuccess,
+    onCreateSessionDescriptionError
+  );
+}
+
+function onSetLocalSuccess(pc) {
+  trace(getName(pc) + ' setLocalDescription complete');
+}
+////////////////////////////////////////////////////////////////////////////////////////
+
+
+
 // function onSetRemoteSuccess(pc) {
 //   trace(getName(pc) + ' setRemoteDescription complete');
 // }
