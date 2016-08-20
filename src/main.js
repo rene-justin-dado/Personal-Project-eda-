@@ -12,7 +12,7 @@ const hangupButton = document.getElementById('hangupButton')
 callButton.disabled = true
 hangupButton.disabled = true
 startButton.onclick = start()
-// callButton.onclick = call
+callButton.onclick = call
 // hangupButton.onclick = hangup
 const localVideo = document.getElementById('localVideo')
 const remoteVideo = document.getElementById('remoteVideo')
@@ -82,6 +82,7 @@ window.remotePC = remotePC = new RTCPeerConnection(servers)
 console.log('Created remote peer connection object remotePC (available in global scope)')
 remotePC.onicecandidate = (err) => { onIceCandidate(remotePC, err) }
 
+
 function start () {
   navigator.mediaDevices.getUserMedia({
     audio:false,
@@ -90,63 +91,71 @@ function start () {
   .then(gotStream)
   .catch(err => console.error(err.name))
 }
-function gotStream(stream) {
-  console.log('Received local stream')
+
+function gotStream (stream) {
   if (window.URL) {
     localVideo.src = window.URL.createObjectURL(stream)
     localVideo.srcObject = stream
   } else {
     localVideo.src = stream
   }
+  console.log('Received local stream (this is the result of the success callback of getUserMedia)')
   // Add localStream to global scope so it's accessible from the browser console
   window.localStream = localStream = stream
   callButton.disabled = false
 }
 
+function gotRemoteStream(evt) {
+  // Add remoteStream to global scope so it's accessible from the browser console
+  window.remoteStream = remoteVideo.srcObject = evt.stream;
+  console.log('pc2 received remote stream');
+}
+
+function call() {
+  callButton.disabled = true
+  hangupButton.disabled = false
+  console.log('Starting call')
+  startTime = window.performance.now()
+  var videoTracks = localStream.getVideoTracks()
+  var audioTracks = localStream.getAudioTracks()
+  if (videoTracks.length > 0) {
+    console.log('Using video device: ' + videoTracks[0].label)
+  }
+  if (audioTracks.length > 0) {
+    console.log('Using audio device: ' + audioTracks[0].label)
+  }
+
+  /////////////////////////////////////////////
+  localPC.oniceconnectionstatechange = function(e) {
+    onIceStateChange(localPC, e)
+  }
+  remotePC.oniceconnectionstatechange = function(e) {
+    onIceStateChange(remotePC, e)
+  }
+  remotePC.onaddstream = gotRemoteStream
+
+ localPC.addTrack(localStream)
+ console.log('Added local stream to localPC')
+
+  console.log('localPC createOffer start')
+  localPC.createOffer(
+    offerOptions
+  ).then(
+    onCreateOfferSuccess,
+    onCreateSessionDescriptionError
+  )
+}
+
 //
 //
-// function call() {
-//   callButton.disabled = true;
-//   hangupButton.disabled = false;
-//   trace('Starting call');
-//   startTime = window.performance.now();
-//   var videoTracks = localStream.getVideoTracks();
-//   var audioTracks = localStream.getAudioTracks();
-//   if (videoTracks.length > 0) {
-//     trace('Using video device: ' + videoTracks[0].label);
-//   }
-//   if (audioTracks.length > 0) {
-//     trace('Using audio device: ' + audioTracks[0].label);
-//   }
-//
-//   /////////////////////////////////////////////
-//   localPC.oniceconnectionstatechange = function(e) {
-//     onIceStateChange(localPC, e);
-//   };
-//   remotePC.oniceconnectionstatechange = function(e) {
-//     onIceStateChange(remotePC, e);
-//   };
-//   remotePC.onaddstream = gotRemoteStream;
-//
-//   localPC.addStream(localStream);
-//   trace('Added local stream to localPC');
-//
-//   trace('localPC createOffer start');
-//   localPC.createOffer(
-//     offerOptions
-//   ).then(
-//     onCreateOfferSuccess,
-//     onCreateSessionDescriptionError
-//   );
-// }
 //
 // function onCreateSessionDescriptionError(error) {
-//   trace('Failed to create session description: ' + error.toString());
+//   trace('Failed to create session description: ' + error.toString())
 // }
 //
 // function onCreateOfferSuccess(desc) {
-//   trace('Offer from localPC\n' + desc.sdp);
-//   trace('localPC setLocalDescription start');
+//   trace('Offer from localPC\n' + desc.sdp)
+//   trace('localPC setLocalDescription start')
 //   localPC.setLocalDescription(desc).then(
 //     function() {
 //       onSetLocalSuccess(localPC);
