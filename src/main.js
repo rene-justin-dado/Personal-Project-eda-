@@ -1,19 +1,86 @@
 'use strict';
 
 navigator.getUserMedia = navigator.getUserMedia ||
-    navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+    navigator.webkitGetUserMedia || navigator.mozGetUserMedia
 
-const startbutton = document.getElementById('startbutton');
-const callButton = document.getElementById('callButton');
-const hangupButton = document.getElementById('hangupButton');
-callButton.disabled = true;
-hangupButton.disabled = true;
-startButton.onclick = start();
-// callButton.onclick = call;
-// hangupButton.onclick = hangup;
+// import {} from './handleIceCandidates'
 
+// DOM interactions
+const startbutton = document.getElementById('startbutton')
+const callButton = document.getElementById('callButton')
+const hangupButton = document.getElementById('hangupButton')
+callButton.disabled = true
+hangupButton.disabled = true
+startButton.onclick = start()
+// callButton.onclick = call
+// hangupButton.onclick = hangup
 const localVideo = document.getElementById('localVideo')
 const remoteVideo = document.getElementById('remoteVideo')
+
+// stun/turn server config
+const servers = {
+  'iceServers': [
+    {url:'stun:stun01.sipphone.com'},
+    {url:'stun:stun.ekiga.net'},
+    {url:'stun:stun.fwdnet.net'},
+    {url:'stun:stun.ideasip.com'},
+    {url:'stun:stun.iptel.org'},
+    {url:'stun:stun.rixtelecom.se'},
+    {url:'stun:stun.schlund.de'},
+    {url:'stun:stun.l.google.com:19302'},
+    {url:'stun:stun1.l.google.com:19302'},
+    {url:'stun:stun2.l.google.com:19302'},
+    {url:'stun:stun3.l.google.com:19302'},
+    {url:'stun:stun4.l.google.com:19302'},
+    {url:'stun:stunserver.org'},
+    {url:'stun:stun.softjoys.com'},
+    {url:'stun:stun.voiparound.com'},
+    {url:'stun:stun.voipbuster.com'},
+    {url:'stun:stun.voipstunt.com'},
+    {url:'stun:stun.voxgratia.org'},
+    {url:'stun:stun.xten.com'},
+    {
+    	url: 'turn:numb.viagenie.ca',
+    	credential: 'muazkh',
+    	username: 'webrtc@live.com'
+    },
+    {
+    	url: 'turn:192.158.29.39:3478?transport=udp',
+    	credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+    	username: '28224511:1379330808'
+    },
+    {
+    	url: 'turn:192.158.29.39:3478?transport=tcp',
+    	credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+    	username: '28224511:1379330808'
+    }
+  ]
+}
+
+let localStream
+let localPC
+let remotePC
+const offerOptions = {
+  offerToReceiveAudio: 1,
+  offerToReceiveVideo: 1
+}
+
+function getName(pc) {
+  return (pc === localPC) ? 'localPC' : 'remotePC'
+}
+
+function getOtherPc(pc) {
+  return (pc === localPC) ? remotePC : localPC
+}
+// Add localPC to global scope so it's accessible from the browser console
+window.localPC = localPC = new RTCPeerConnection(servers)
+console.log('Created local peer connection object localPC (available in global scope)')
+localPC.onicecandidate = (err) => { onIceCandidate(localPC, err) }
+
+// Add remotePC to global scope so it's accessible from the browser console
+window.remotePC = remotePC = new RTCPeerConnection(servers)
+console.log('Created remote peer connection object remotePC (available in global scope)')
+remotePC.onicecandidate = (err) => { onIceCandidate(remotePC, err) }
 
 function start () {
   navigator.mediaDevices.getUserMedia({
@@ -36,32 +103,7 @@ function gotStream(stream) {
   callButton.disabled = false
 }
 
-// var localVideo = document.getElementById('localVideo');
-// var remoteVideo = document.getElementById('remoteVideo');
 //
-// let localStream;
-// let pc1;
-// let pc2;
-// const offerOptions = {
-//   offerToReceiveAudio: 1,
-//   offerToReceiveVideo: 1
-// };
-//
-// function getName(pc) {
-//   return (pc === pc1) ? 'pc1' : 'pc2';
-// }
-//
-// function getOtherPc(pc) {
-//   return (pc === pc1) ? pc2 : pc1;
-// }
-//
-// function gotStream(stream) {
-//   trace('Received local stream');
-//   localVideo.srcObject = stream;
-//   // Add localStream to global scope so it's accessible from the browser console
-//   window.localStream = localStream = stream;
-//   callButton.disabled = false;
-// }
 //
 // function call() {
 //   callButton.disabled = true;
@@ -78,32 +120,19 @@ function gotStream(stream) {
 //   }
 //
 //   /////////////////////////////////////////////
-//   var servers = null;
-//   // Add pc1 to global scope so it's accessible from the browser console
-//   window.pc1 = pc1 = new RTCPeerConnection(servers);
-//   trace('Created local peer connection object pc1');
-//     pc1.onicecandidate = function(e) {
-//     onIceCandidate(pc1, e);
+//   localPC.oniceconnectionstatechange = function(e) {
+//     onIceStateChange(localPC, e);
 //   };
-//   // Add pc2 to global scope so it's accessible from the browser console
-//   window.pc2 = pc2 = new RTCPeerConnection(servers);
-//   trace('Created remote peer connection object pc2');
-//   pc2.onicecandidate = function(e) {
-//     onIceCandidate(pc2, e);
+//   remotePC.oniceconnectionstatechange = function(e) {
+//     onIceStateChange(remotePC, e);
 //   };
-//   pc1.oniceconnectionstatechange = function(e) {
-//     onIceStateChange(pc1, e);
-//   };
-//   pc2.oniceconnectionstatechange = function(e) {
-//     onIceStateChange(pc2, e);
-//   };
-//   pc2.onaddstream = gotRemoteStream;
+//   remotePC.onaddstream = gotRemoteStream;
 //
-//   pc1.addStream(localStream);
-//   trace('Added local stream to pc1');
+//   localPC.addStream(localStream);
+//   trace('Added local stream to localPC');
 //
-//   trace('pc1 createOffer start');
-//   pc1.createOffer(
+//   trace('localPC createOffer start');
+//   localPC.createOffer(
 //     offerOptions
 //   ).then(
 //     onCreateOfferSuccess,
@@ -116,26 +145,26 @@ function gotStream(stream) {
 // }
 //
 // function onCreateOfferSuccess(desc) {
-//   trace('Offer from pc1\n' + desc.sdp);
-//   trace('pc1 setLocalDescription start');
-//   pc1.setLocalDescription(desc).then(
+//   trace('Offer from localPC\n' + desc.sdp);
+//   trace('localPC setLocalDescription start');
+//   localPC.setLocalDescription(desc).then(
 //     function() {
-//       onSetLocalSuccess(pc1);
+//       onSetLocalSuccess(localPC);
 //     },
 //     onSetSessionDescriptionError
 //   );
-//   trace('pc2 setRemoteDescription start');
-//   pc2.setRemoteDescription(desc).then(
+//   trace('remotePC setRemoteDescription start');
+//   remotePC.setRemoteDescription(desc).then(
 //     function() {
-//       onSetRemoteSuccess(pc2);
+//       onSetRemoteSuccess(remotePC);
 //     },
 //     onSetSessionDescriptionError
 //   );
-//   trace('pc2 createAnswer start');
+//   trace('remotePC createAnswer start');
 //   // Since the 'remote' side has no media stream we need
 //   // to pass in the right constraints in order for it to
 //   // accept the incoming offer of audio and video.
-//   pc2.createAnswer().then(
+//   remotePC.createAnswer().then(
 //     onCreateAnswerSuccess,
 //     onCreateSessionDescriptionError
 //   );
@@ -156,43 +185,28 @@ function gotStream(stream) {
 // function gotRemoteStream(e) {
 //   // Add remoteStream to global scope so it's accessible from the browser console
 //   window.remoteStream = remoteVideo.srcObject = e.stream;
-//   trace('pc2 received remote stream');
+//   trace('remotePC received remote stream');
 // }
 //
 // function onCreateAnswerSuccess(desc) {
-//   trace('Answer from pc2:\n' + desc.sdp);
-//   trace('pc2 setLocalDescription start');
-//   pc2.setLocalDescription(desc).then(
+//   trace('Answer from remotePC:\n' + desc.sdp);
+//   trace('remotePC setLocalDescription start');
+//   remotePC.setLocalDescription(desc).then(
 //     function() {
-//       onSetLocalSuccess(pc2);
+//       onSetLocalSuccess(remotePC);
 //     },
 //     onSetSessionDescriptionError
 //   );
-//   trace('pc1 setRemoteDescription start');
-//   pc1.setRemoteDescription(desc).then(
+//   trace('localPC setRemoteDescription start');
+//   localPC.setRemoteDescription(desc).then(
 //     function() {
-//       onSetRemoteSuccess(pc1);
+//       onSetRemoteSuccess(localPC);
 //     },
 //     onSetSessionDescriptionError
 //   );
 // }
 //
 // /////////////////////////////////////////////
-// function onIceCandidate(pc, event) {
-//   if (event.candidate) {
-//     getOtherPc(pc).addIceCandidate(
-//       new RTCIceCandidate(event.candidate)
-//     ).then(
-//       function() {
-//         onAddIceCandidateSuccess(pc);
-//       },
-//       function(err) {
-//         onAddIceCandidateError(pc, err);
-//       }
-//     );
-//     trace(getName(pc) + ' ICE candidate: \n' + event.candidate.candidate);
-//   }
-// }
 //
 // function onAddIceCandidateSuccess(pc) {
 //   trace(getName(pc) + ' addIceCandidate success');
@@ -213,23 +227,10 @@ function gotStream(stream) {
 //
 // function hangup() {
 //   trace('Ending call');
-//   pc1.close();
-//   pc2.close();
-//   pc1 = null;
-//   pc2 = null;
+//   localPC.close();
+//   remotePC.close();
+//   localPC = null;
+//   remotePC = null;
 //   hangupButton.disabled = true;
 //   callButton.disabled = false;
-// }
-//
-//
-// function trace(text) {
-//   if (text[text.length - 1] === '\n') {
-//     text = text.substring(0, text.length - 1);
-//   }
-//   if (window.performance) {
-//     var now = (window.performance.now() / 1000).toFixed(3);
-//     console.log(now + ': ' + text);
-//   } else {
-//     console.log(text);
-//   }
 // }
