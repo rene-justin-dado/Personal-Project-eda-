@@ -1,6 +1,7 @@
 import React from 'react'
 import request from 'superagent'
 
+import VideoChat from './VideoChat'
 
 // import videoChat from videoChatComponent
 // import poetryCorner from poetryCornerComponent
