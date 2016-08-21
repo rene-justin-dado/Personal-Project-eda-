@@ -4,12 +4,13 @@
 const os = require('os')
 const nodeStatic = require('node-static')
 const socketIO = require('socket.io')
+const PORT = process.env.port || 8080
 
 const fileServer = new(nodeStatic.Server)()
 const http = require('http')
 const app = http.createServer((req, res) => {
   fileServer.serve(req, res)
-}).listen(8080)
+}).listen(PORT)
 
 const io = require('socket.io')(app)
 
@@ -23,12 +24,6 @@ io.on('connection', socket => {
     socket.emit('log', array)
   }
 
-  socket.on('message', message => {
-    log('Client said: ', message)
-    // for a real app, would be room-only (not broadcast)
-    socket.broadcast.emit('message', message)
-  })
-
   socket.on('create or join', room => {
     log('Received request to create or join room ' + room)
 
@@ -40,7 +35,7 @@ io.on('connection', socket => {
       log('Client ID ' + socket.id + ' created room ' + room)
       socket.emit('created', room, socket.id)
 
-    } else if (numClients === 2) {
+    } else if (numClients <= 12) {
       log('Client ID ' + socket.id + ' joined room ' + room)
       io.sockets.in(room).emit('join', room)
       socket.join(room)
