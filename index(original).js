@@ -1,20 +1,19 @@
 'use strict'
-// socket-io-p2p
+// Codelab step-04
 
 const os = require('os')
 const nodeStatic = require('node-static')
+const http = require('http')
 const socketIO = require('socket.io')
 
 const fileServer = new(nodeStatic.Server)()
-const http = require('http')
 const app = http.createServer((req, res) => {
   fileServer.serve(req, res)
 }).listen(8080)
 
-const io = require('socket.io')(app)
+const io = socketIO.listen(app)
 
-
-io.on('connection', socket => {
+io.sockets.on('connection', socket => {
 
   // convenience function to log server messages on the client
   function log() {
