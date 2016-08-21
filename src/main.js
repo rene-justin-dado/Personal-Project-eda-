@@ -11,12 +11,33 @@ const callButton = document.getElementById('callButton')
 const hangupButton = document.getElementById('hangupButton')
 callButton.disabled = true
 hangupButton.disabled = true
-startButton.addEventListener('click', start)
-callButton.addEventListener('click', call)
-// hangupButton.onclick = hangup
+startButton.onclick = start
+callButton.onclick = call
+hangupButton.onclick = hangup
+let startTime
 
 const localVideo = document.getElementById('localVideo')
 const remoteVideo = document.getElementById('remoteVideo')
+
+localVideo.addEventListener('loadedmetadata', (evt) => {
+  trace(`Local video videoWidth: ${evt.target.videoWidth} px, videoHeight: ${evt.target.videoHeight} px`)
+})
+
+remoteVideo.addEventListener('loadedmetadata', (evt) => {
+  trace(`Remote video videoWidth: ${evt.target.videoWidth} px, videoHeight: ${evt.target.videoHeight} px`)
+})
+
+remoteVideo.onresize = function() {
+  trace(`Remote video size changed to ${remoteVideo.videoWidth} x ${remoteVideo.videoHeight}`)
+  // We'll use the first onresize callback as an indication that video has started
+  // playing out.
+  if (startTime) {
+    let elapsedTime = window.performance.now() - startTime
+    trace(`Setup time: ${elapsedTime.toFixed(3)}ms`)
+    startTime = null
+  }
+}
+
 
 // stun/turn server config
 const servers = {
@@ -77,7 +98,7 @@ function getOtherPc(pc) {
 function gotStream (stream) {
   // Add localStream to global scope so it's accessible from the browser console
   window.localStream = localStream = stream
-  console.log('Received local stream (this is the result of the success callback of getUserMedia)')
+  trace('Received local stream (this is the result of the success callback of getUserMedia)')
 
   callButton.disabled = false
   if (window.URL) {
@@ -92,35 +113,39 @@ function start () {
   startButton.disabled=true
   navigator.mediaDevices.getUserMedia({
     audio:true,
-    video: true
+    video: {
+      width: 320
+    }
   })
   .then(gotStream)
   .catch(err => console.error(err.name))
 }
 
-function call() {
+///////////////////////////////////////////////////////////////////////////////
+function call () {
   callButton.disabled = true
   hangupButton.disabled = false
-  console.log('Starting call')
+  trace('Starting call')
+  startTime = window.performance.now()
   const videoTracks = localStream.getVideoTracks()
   const audioTracks = localStream.getAudioTracks()
   if (videoTracks.length > 0) {
-    console.log('Using video device: ' + videoTracks[0].label)
+    trace('Using video device: ' + videoTracks[0].label)
   }
   if (audioTracks.length > 0) {
-    console.log('Using audio device: ' + audioTracks[0].label)
+    trace('Using audio device: ' + audioTracks[0].label)
   }
 
   // Add localPC to global scope so it's accessible from the browser console
   window.localPC = localPC = new RTCPeerConnection(servers)
-  console.log('Created local peer connection object for localPC (available in global scope)')
+  trace('Created local peer connection object for localPC (available in global scope)')
   localPC.onicecandidate = evt => {
     onIceCandidate(localPC, evt)
   }
 
   // Add remotePC to global scope so it's accessible from the browser console
   window.remotePC = remotePC = new RTCPeerConnection(servers)
-  console.log('Created remote peer connection object for remotePC (available in global scope)')
+  trace('Created remote peer connection object for remotePC (available in global scope)')
   remotePC.onicecandidate = evt => {
     onIceCandidate(remotePC, evt)
   }
@@ -134,9 +159,9 @@ function call() {
   remotePC.onaddstream = gotRemoteStream
 
   localPC.addStream(localStream)
-  console.log('Added local stream to localPC\n')
+  trace('Added local stream to localPC\n')
 
-  console.log('localPC createOffer start')
+  trace('localPC createOffer start')
   localPC.createOffer(offerOptions)
          .then(onCreateOfferSuccess)
          .catch(onCreateSessionDescriptionError)
@@ -149,31 +174,52 @@ function onIceCandidate (pc, evt) {
     .catch(err => onAddIceCandidateError(pc, err))
   }
 }
+///////////////////////////////////////////////////////////////////////////////
 
+function gotRemoteStream(e) {
+  // Add remoteStream to global scope so it's accessible from the browser console
+  window.remoteStream = remoteVideo.srcObject = e.stream
+  trace('remotePC received remote stream')
+}
+
+///////////////////////////////////////////////////////////////////////////////
 function onAddIceCandidateSuccess(pc) {
-  console.log(`${getName(pc)} addIceCandidate success`)
+  trace(`${getName(pc)} addIceCandidate success`)
 }
 
 function onAddIceCandidateError(pc, error) {
-  console.log(`${getName(pc)} failed to add ICE Candidate: ${error.toString()}`)
+  trace(`${getName(pc)} failed to add ICE Candidate: ${error.toString()}`)
 }
 
 function onCreateSessionDescriptionError(err) {
-  console.log(`Failed to create session description: ${err.toString()}`)
+  trace(`Failed to create session description: ${err.toString()}`)
+}
+
+function onCreateAnswerSuccess(desc) {
+  trace(`Answer from remotePC:\n${desc.sdp}`)
+  trace('remotePC setLocalDescription start')
+  remotePC.setLocalDescription(desc)
+  .then(onSetLocalSuccess(remotePC))
+  .catch(onSetSessionDescriptionError)
+
+  trace('localPC setRemoteDescription start')
+  localPC.setRemoteDescription(desc)
+  .then(onSetRemoteSuccess(localPC))
+  .catch(onSetSessionDescriptionError)
 }
 
 function onCreateOfferSuccess(desc) {
-  console.log(`Offer from localPC\n ${desc.sdp}`)
-  console.log('localPC setLocalDescription start')
+  trace(`Offer from localPC\n${desc.sdp}`)
+  trace('localPC setLocalDescription start')
   localPC.setLocalDescription(desc)
          .then(onSetLocalSuccess(localPC))
          .catch(onSetSessionDescriptionError)
 
-  console.log('remotePC setRemoteDescription start')
+  trace('remotePC setRemoteDescription start')
   remotePC.setRemoteDescription(desc)
           .then(onSetRemoteSuccess(remotePC))
           .catch(onSetSessionDescriptionError)
-  console.log('remotePC createAnswer start')
+  trace('remotePC createAnswer start')
 
   // Since the 'remote' side has no media stream we need
   // to pass in the right constraints in order for it to
@@ -184,44 +230,26 @@ function onCreateOfferSuccess(desc) {
 }
 
 function onSetLocalSuccess(pc) {
-  console.log(`${getName(pc)} setLocalDescription complete`)
+  trace(`${getName(pc)} setLocalDescription complete`)
 }
 
 function onSetSessionDescriptionError(err) {
-  console.log(`Failed to set session description:  ${err.toString()}`)
+  trace(`Failed to set session description:  ${err.toString()}`)
 }
 function onSetRemoteSuccess(pc) {
-  console.log(`${getName(pc)} setRemoteDescription complete`)
-}
-
-function onCreateAnswerSuccess(desc) {
-  console.log(`Answer from remotePC:\n`) //${desc.sdp}
-  console.log('remotePC setLocalDescription start')
-  remotePC.setLocalDescription(desc)
-          .then(onSetLocalSuccess(remotePC))
-          .catch(onSetSessionDescriptionError)
-
-  console.log('localPC setRemoteDescription start')
-  localPC.setRemoteDescription(desc)
-         .then(onSetRemoteSuccess(localPC))
-         .catch(onSetSessionDescriptionError)
-}
-
-function gotRemoteStream(e) {
-  // Add remoteStream to global scope so it's accessible from the browser console
-  window.remoteStream = remoteVideo.srcObject = e.stream
-  console.log('remotePC received remote stream')
+  trace(`${getName(pc)} setRemoteDescription complete`)
 }
 
 function onIceStateChange(pc, evt) {
   if (pc) {
-    console.log(`${getName(pc)} ICE state: ${pc.iceConnectionState}`)
-    console.log('ICE state change event: ', evt)
+    trace(`${getName(pc)} ICE state: ${pc.iceConnectionState}`)
+    trace('ICE state change event: ', evt)
   }
 }
+///////////////////////////////////////////////////////////////////////////////
 
 function hangup() {
-  console.log('Ending call')
+  trace('Ending call')
   localPC.close()
   remotePC.close()
   localPC = null
@@ -229,3 +257,39 @@ function hangup() {
   hangupButton.disabled = true
   callButton.disabled = false
 }
+
+function trace (text) {
+  if (text[text.length - 1] === '\n') {
+    text = text.substring(0, text.length - 1)
+  }
+  if (window.performance) {
+    let now = (window.performance.now() / 1000).toFixed(3)
+    console.log(`${now}: ${text}`)
+  } else {
+    console.log(text)
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+var peerConnection = new RTCPeerConnection();
+
+// Establish your peer connection using your signaling channel here
+var dataChannel =
+  peerConnection.createDataChannel("myLabel", dataChannelOptions);
+
+dataChannel.onerror = function (error) {
+  console.log("Data Channel Error:", error);
+};
+
+dataChannel.onmessage = function (event) {
+  console.log("Got Data Channel Message:", event.data);
+};
+
+dataChannel.onopen = function () {
+  dataChannel.send("Hello World!");
+};
+
+dataChannel.onclose = function () {
+  console.log("The Data Channel is Closed");
+};
