@@ -123,19 +123,6 @@ function start () {
 
 ///////////////////////////////////////////////////////////////////////////////
 function call () {
-  callButton.disabled = true
-  hangupButton.disabled = false
-  trace('Starting call')
-  startTime = window.performance.now()
-  const videoTracks = localStream.getVideoTracks()
-  const audioTracks = localStream.getAudioTracks()
-  if (videoTracks.length > 0) {
-    trace('Using video device: ' + videoTracks[0].label)
-  }
-  if (audioTracks.length > 0) {
-    trace('Using audio device: ' + audioTracks[0].label)
-  }
-
   // Add localPC to global scope so it's accessible from the browser console
   window.localPC = localPC = new RTCPeerConnection(servers)
   trace('Created local peer connection object for localPC (available in global scope)')
@@ -148,6 +135,19 @@ function call () {
   trace('Created remote peer connection object for remotePC (available in global scope)')
   remotePC.onicecandidate = evt => {
     onIceCandidate(remotePC, evt)
+  }
+
+  callButton.disabled = true
+  hangupButton.disabled = false
+  trace('Starting call')
+  startTime = window.performance.now()
+  const videoTracks = localStream.getVideoTracks()
+  const audioTracks = localStream.getAudioTracks()
+  if (videoTracks.length > 0) {
+    trace('Using video device: ' + videoTracks[0].label)
+  }
+  if (audioTracks.length > 0) {
+    trace('Using audio device: ' + audioTracks[0].label)
   }
 
   localPC.oniceconnectionstatechange = evt => {
@@ -270,26 +270,27 @@ function trace (text) {
   }
 }
 
+
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-var peerConnection = new RTCPeerConnection();
-
-// Establish your peer connection using your signaling channel here
-var dataChannel =
-  peerConnection.createDataChannel("myLabel", dataChannelOptions);
-
-dataChannel.onerror = function (error) {
-  console.log("Data Channel Error:", error);
-};
-
-dataChannel.onmessage = function (event) {
-  console.log("Got Data Channel Message:", event.data);
-};
-
-dataChannel.onopen = function () {
-  dataChannel.send("Hello World!");
-};
-
-dataChannel.onclose = function () {
-  console.log("The Data Channel is Closed");
-};
+//
+// // Establish your peer connection using your signaling channel here
+// var dataChannel =
+//   peerConnection.createDataChannel("myLabel", dataChannelOptions);
+//
+// dataChannel.onerror = function (error) {
+//   console.log("Data Channel Error:", error);
+// };
+//
+// dataChannel.onmessage = function (event) {
+//   console.log("Got Data Channel Message:", event.data);
+// };
+//
+// dataChannel.onopen = function () {
+//   dataChannel.send("Hello World!");
+// };
+//
+// dataChannel.onclose = function () {
+//   console.log("The Data Channel is Closed");
+// };

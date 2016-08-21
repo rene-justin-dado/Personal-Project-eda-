@@ -5,6 +5,8 @@
   "main": "server.js",
   "dependencies": {
     "express": "^4.14.0",
+    "node-static": "^0.7.8",
+    "socket.io": "^1.4.8",
     "webrtc-adapter": "^2.0.2"
   },
   "devDependencies": {
@@ -19,6 +21,7 @@
     "eslint-plugin-react": "^6.0.0",
     "eslint-plugin-standard": "^2.0.0",
     "jsx-loader": "^0.13.2",
+    "nodemon": "^1.10.2",
     "react": "^15.3.0",
     "react-dom": "^15.3.0",
     "superagent": "^2.2.0",
@@ -26,7 +29,8 @@
     "webpack-dev-server": "^1.14.1"
   },
   "scripts": {
-    "start": "webpack-dev-server --hot --inline"
+    "start": "webpack-dev-server --hot --inline",
+    "nodemon": "nodemon index.js"
   },
   "repository": {
     "type": "git",
