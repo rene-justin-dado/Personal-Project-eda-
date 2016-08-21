@@ -95,6 +95,8 @@ function getOtherPc(pc) {
   return (pc === localPC) ? remotePC : localPC
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Set Up Local Stream upon 'start'
 function gotStream (stream) {
   // Add localStream to global scope so it's accessible from the browser console
   window.localStream = localStream = stream
@@ -122,6 +124,7 @@ function start () {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Handle Remote stream
 function call () {
   // Add localPC to global scope so it's accessible from the browser console
   window.localPC = localPC = new RTCPeerConnection(servers)
