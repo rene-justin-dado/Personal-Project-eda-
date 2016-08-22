@@ -3,8 +3,6 @@
 navigator.getUserMedia = navigator.getUserMedia ||
     navigator.webkitGetUserMedia || navigator.mozGetUserMedia
 
-// import {} from './handleIceCandidates'
-
 // DOM interactions
 const startButton = document.getElementById('startButton')
 const callButton = document.getElementById('callButton')
@@ -137,6 +135,7 @@ function call () {
   window.remotePC = remotePC = new RTCPeerConnection(servers)
   trace('Created remote peer connection object for remotePC (available in global scope)')
   remotePC.onicecandidate = evt => {
+    socket.json.send({type: "candidate", evt.candidate})
     onIceCandidate(remotePC, evt)
   }
 
