@@ -135,7 +135,6 @@ function call () {
   window.remotePC = remotePC = new RTCPeerConnection(servers)
   trace('Created remote peer connection object for remotePC (available in global scope)')
   remotePC.onicecandidate = evt => {
-    socket.json.send({type: "candidate", evt.candidate})
     onIceCandidate(remotePC, evt)
   }
 

@@ -25,18 +25,6 @@
     <div id="tactComms">things</div>
   </div>
 
-
-<script src="http://192.168.1.3:1337/socket.io/socket.io.js"></script>
-<script>
-var socket = io.connect('http://192.168.1.3:1337/');
-var channelReady = false;
-
-socket.on('connect', onChannelOpened);
-
-function onChannelOpened(evt) {
-  channelReady = true;
-}
-</script>
   <script src="./src/lib/adapter.js"></script>
   <script src="./src/main.js"></script>
   <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>

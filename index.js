@@ -1,22 +1,19 @@
 'use strict'
-// socket-io-p2p
-// const io = require('socket.io')(server)
-// const p2p = require('socket.io-p2p-server').Server
-// io.use(p2p)
+
+const PORT = process.env.port || 3000 || 1337
 
 const os = require('os')
 const nodeStatic = require('node-static')
 const socketIO = require('socket.io')
-const PORT = process.env.port || 1337
-
 const fileServer = new(nodeStatic.Server)()
 const http = require('http')
 const app = http.createServer((req, res) => {
   fileServer.serve(req, res)
-}).listen(PORT)
-
+}).listen(1337)
 const io = require('socket.io')(app)
-
+// const server = require('http').createServer()
+// const app = server.listen(1337)
+// const io = require('socket.io').listen(app)
 
 io.on('connection', socket => {
   // convenience function to log server messages on the client
@@ -25,8 +22,9 @@ io.on('connection', socket => {
     array.push.apply(array, arguments)
     socket.emit('log', array)
   }
-  log(socket)
+
   socket.on('message', message => socket.broadcast.emit('message', message))
+
   // socket.on('create or join', room => {
   //   log('Received request to create or join room ' + room)
   //
