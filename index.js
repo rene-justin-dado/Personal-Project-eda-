@@ -4,7 +4,7 @@
 const os = require('os')
 const nodeStatic = require('node-static')
 const socketIO = require('socket.io')
-const PORT = process.env.port || 8080
+// const PORT = process.env.port || 8080
 
 const fileServer = new(nodeStatic.Server)()
 const http = require('http')
