@@ -13,8 +13,10 @@ import VideoChat from './VideoChat'
 export default React.createClass ({
   render () {
     return (
-      <div className="appContainer">
+      <div id="appContainer">
+        <div id="poetryCorner">stuff</div>
         <VideoChat />
+        <div id="tactComms">things</div>
       </div>
     )
   }
