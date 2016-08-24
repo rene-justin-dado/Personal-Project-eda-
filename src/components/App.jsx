@@ -25,7 +25,7 @@ export default React.createClass ({
         <PoetryCorner words={this.state.words}/>
         {wordElements}
         <VideoChat />
-        <img src="http://s59.podbean.com/pb/ee07cb7e24d553b98aaa568bfde326b4/57bd5652/data1/blogs60/713853/uploads/fistbump.png" alt="fist bump"/>
+        <img id="fist" src="http://s59.podbean.com/pb/ee07cb7e24d553b98aaa568bfde326b4/57bd5652/data1/blogs60/713853/uploads/fistbump.png" alt="fist bump"/>
       </div>
     )
   }

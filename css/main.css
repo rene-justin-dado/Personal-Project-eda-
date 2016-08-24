@@ -9,8 +9,17 @@ video {
   /*visibility: hidden;*/
 }
 
+img {
+  max-width: 300px;
+}
+
 #appContainer {
   display:flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: flex;
+}
+
+#fist {
+  align-self: center;
 }

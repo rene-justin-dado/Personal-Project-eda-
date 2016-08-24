@@ -53,16 +53,19 @@ export default React.createClass({
   render() {
     return (
       <div id="poetryCorner">
-      <form>
-          <input ref={(node) => this.inputNode = node} type="text" name="Word" placeholder="Enter your word here" onChange={this.handleInput} onKeyUp={this.handleKeypress}
-            />
-            <br />
-          <button id="btn" type="button" onClick={this.handleRequest}>Submit</button>
-        </form>
-      <div>
-        {this.state.words.map((word, i) => <Synonym word={word} key={i} />)}
-      </div>
 
+        <img src="https://lh4.ggpht.com/BRvMqb5K77Uu5L3G8RrtL98hYQVSlEFIqnLIt8uhA9PrQNzORauEybTspGNpQNpJgGQ=w705" alt="thesaurus rex"/>
+        <br/>
+        <br/>
+        <form>
+            <input ref={(node) => this.inputNode = node} type="text" name="Word" placeholder="Enter your word here" onChange={this.handleInput} onKeyUp={this.handleKeypress}
+              />
+              <br />
+            <button id="btn" type="button" onClick={this.handleRequest}>Submit</button>
+          </form>
+        <div>
+          {this.state.words.map((word, i) => <Synonym word={word} key={i} />)}
+        </div>
       </div>
     )
   }
