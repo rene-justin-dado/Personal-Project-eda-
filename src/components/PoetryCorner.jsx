@@ -44,7 +44,7 @@ export default React.createClass({
 
   handleKeypress(evt) {
     if(evt.keyCode !== 13) {
-      this.setState({content: this.currentTarget.value})
+      this.setState({content: this.target.value})
       return
     }
     this.handleRequest(evt)
@@ -53,8 +53,9 @@ export default React.createClass({
   render() {
     return (
       <div id="poetryCorner">
-
-        <img src="https://lh4.ggpht.com/BRvMqb5K77Uu5L3G8RrtL98hYQVSlEFIqnLIt8uhA9PrQNzORauEybTspGNpQNpJgGQ=w705" alt="thesaurus rex"/>
+        <img src="../../words.jpg" alt="words"/>
+        <h3>This poetry corner is brought to you by...</h3>
+        <img src="../../thesaurus.png" alt="thesaurus rex"/>
         <br/>
         <br/>
         <form>
@@ -64,7 +65,7 @@ export default React.createClass({
             <button id="btn" type="button" onClick={this.handleRequest}>Submit</button>
           </form>
         <div>
-          {this.state.words.map((word, i) => <Synonym word={word} key={i} />)}
+          {this.state.words.map((word, i) => <Synonyms word={word} key={i} />)}
         </div>
       </div>
     )
