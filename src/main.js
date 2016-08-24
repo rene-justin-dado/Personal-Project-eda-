@@ -1,4 +1,10 @@
 'use strict'
+document.addEventListener("DOMContentLoaded", () => {
+  const socket = new WebSocket(`ws://${window.location.hostname}:1337`)
+  socket.onopen = evt => {
+    socket.onmessage = gotMessageFromServer
+  }
+})
 
 navigator.getUserMedia = navigator.getUserMedia ||
     navigator.webkitGetUserMedia || navigator.mozGetUserMedia
@@ -270,26 +276,24 @@ function trace (text) {
     console.log(text)
   }
 }
+///////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-//
-// // Establish your peer connection using your signaling channel here
-// var dataChannel =
-//   peerConnection.createDataChannel("myLabel", dataChannelOptions);
-//
-// dataChannel.onerror = function (error) {
-//   console.log("Data Channel Error:", error);
-// };
-//
-// dataChannel.onmessage = function (event) {
-//   console.log("Got Data Channel Message:", event.data);
-// };
-//
-// dataChannel.onopen = function () {
-//   dataChannel.send("Hello World!");
-// };
-//
-// dataChannel.onclose = function () {
-//   console.log("The Data Channel is Closed");
-// };
+function gotMessageFromServer(message) {
+    if(!peerConnection) start(false);
+
+    var signal = JSON.parse(message.data);
+
+    // Ignore messages from ourself
+    if(signal.uuid == uuid) return;
+
+    if(signal.sdp) {
+        peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp)).then(function() {
+            // Only create answers in response to offers
+            if(signal.sdp.type == 'offer') {
+                peerConnection.createAnswer().then(createdDescription).catch(errorHandler);
+            }
+        }).catch(errorHandler);
+    } else if(signal.ice) {
+        peerConnection.addIceCandidate(new RTCIceCandidate(signal.ice)).catch(errorHandler);
+    }
+}
