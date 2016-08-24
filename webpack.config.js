@@ -1,4 +1,4 @@
-module.exports = {
+module.exports = { 
   entry: './src/index.js',
   output: 'bundle.js',
   module: {

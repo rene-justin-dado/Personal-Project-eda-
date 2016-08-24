@@ -9,7 +9,6 @@ import PoetryCorner from './PoetryCorner'
 //  Rhymes
 // import tactComms from tactCommsComponent
 
-
 export default React.createClass ({
   getInitialState () {
     return { words: []}

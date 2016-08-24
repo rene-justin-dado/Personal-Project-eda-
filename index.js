@@ -1,5 +1,4 @@
 'use strict'
-// socket-io-p2p
 
 const os = require('os')
 const nodeStatic = require('node-static')

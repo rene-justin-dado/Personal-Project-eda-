@@ -1,7 +1,7 @@
 {
   "name": "intense-lake-31131",
   "version": "0.1.0",
-  "description": "My Personal Project",
+  "description": "My First Personal Project",
   "main": "server.js",
   "dependencies": {
     "express": "^4.14.0",

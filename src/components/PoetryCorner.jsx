@@ -1,6 +1,6 @@
 import React from 'react'
 import request from 'superagent'
-import Synonyms from './Synonyms'
+import Synonyms from './Synonyms' 
 
 export default React.createClass({
   propTypes:{

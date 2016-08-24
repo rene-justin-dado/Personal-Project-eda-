@@ -1,1 +1,3 @@
 Thesaurus service provided by words.bighugelabs.com
+If only this app could do more...
+Mark my words. It'll have its day.
